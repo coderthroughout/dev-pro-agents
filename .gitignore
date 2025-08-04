@@ -175,3 +175,7 @@ uv.lock
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+*.db
+
+.coveragerc
