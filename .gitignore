@@ -177,5 +177,5 @@ ehthumbs.db
 Desktop.ini
 
 *.db
-
 .coveragerc
+.archived/
