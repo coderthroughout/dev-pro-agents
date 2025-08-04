@@ -380,9 +380,9 @@ class TestExecuteTaskWithAgent:
 
         # Verify task status set to failed
         final_status_call = None
-        for call in service.task_repo.update_status_with_progress.call_args_list:
-            if call[1]["status"] == TaskStatus.FAILED:
-                final_status_call = call
+        for call_args in service.task_repo.update_status_with_progress.call_args_list:
+            if call_args[1]["status"] == TaskStatus.FAILED:
+                final_status_call = call_args
                 break
 
         assert final_status_call is not None

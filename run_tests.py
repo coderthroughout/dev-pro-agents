@@ -128,7 +128,7 @@ def run_agent_registry_tests():
         # Test 3: Duplicate registration
         try:
             registry.register(agent)
-            assert False, "Should have raised ValueError"
+            raise AssertionError("Should have raised ValueError")
         except ValueError as e:
             assert "already registered" in str(e)
             print("  ✓ test_register_duplicate_agent_raises_error")

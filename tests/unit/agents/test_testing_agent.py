@@ -215,7 +215,9 @@ class TestTestingAgentTaskExecution:
             "id": 1,
             "title": "Test user authentication system",
             "description": "Create comprehensive test suite for login functionality",
-            "success_criteria": "All authentication paths are tested with 90%+ coverage",
+            "success_criteria": (
+                "All authentication paths are tested with 90%+ coverage"
+            ),
         }
 
     @pytest.fixture
@@ -320,7 +322,9 @@ class TestTestingAgentTaskExecution:
                     from fastapi import HTTPException
                     
                     def create_token(user_id: str) -> str:
-                        return jwt.encode({"user_id": user_id}, "secret", algorithm="HS256")
+                        return jwt.encode(
+                            {"user_id": user_id}, "secret", algorithm="HS256"
+                        )
                     """
                 }
             }
@@ -704,7 +708,9 @@ async def test_testing_agent_integration():
         task_data = {
             "id": 1,
             "title": "Test user authentication system",
-            "description": "Create comprehensive test suite for secure login functionality",
+            "description": (
+                "Create comprehensive test suite for secure login functionality"
+            ),
             "success_criteria": "All authentication paths tested with 90%+ coverage",
         }
 
@@ -726,7 +732,9 @@ async def test_testing_agent_integration():
                             return validate_credentials(username, password)
                             
                         def create_token(user_id: str) -> str:
-                            return jwt.encode({"user_id": user_id}, "secret", algorithm="HS256")
+                            return jwt.encode(
+                                {"user_id": user_id}, "secret", algorithm="HS256"
+                            )
                         """
                     }
                 }

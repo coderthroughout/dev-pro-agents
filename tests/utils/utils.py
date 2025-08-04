@@ -6,6 +6,7 @@ and test execution helpers for comprehensive testing workflows.
 
 import asyncio
 import json
+import logging
 import os
 import tempfile
 import time
@@ -129,7 +130,7 @@ class AsyncTestHelper:
                 if await condition_func(*args, **kwargs):
                     return True
             except Exception:
-                pass  # Ignore exceptions during condition check
+                logging.debug("Condition check failed", exc_info=True)
             await asyncio.sleep(interval)
         return False
 
@@ -226,7 +227,8 @@ class AssertionHelpers:
         duration = (end_time - start_time).total_seconds() / 60
         assert duration >= 0, "End time must be after start time"
         assert duration <= max_duration_minutes, (
-            f"Execution time {duration:.2f}min exceeds maximum {max_duration_minutes}min"
+            f"Execution time {duration:.2f}min exceeds maximum "
+            f"{max_duration_minutes}min"
         )
 
 
@@ -367,10 +369,10 @@ class FileTestHelper:
         try:
             yield temp_path
         finally:
-            try:
+            from contextlib import suppress
+
+            with suppress(OSError):
                 temp_path.unlink()
-            except OSError:
-                pass  # File might already be deleted
 
     @staticmethod
     def create_test_config(

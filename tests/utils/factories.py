@@ -4,7 +4,7 @@ Provides comprehensive factory functions and builders for creating test data
 with realistic defaults and easy customization for all model types.
 """
 
-import random
+import secrets
 import uuid
 from datetime import datetime, timedelta
 from typing import Any
@@ -68,7 +68,7 @@ def fake_datetime(
 
 def random_choice_from_enum(enum_class):
     """Get a random choice from an enum."""
-    return random.choice(list(enum_class))
+    return secrets.choice(list(enum_class))
 
 
 # ============================================================================
@@ -332,7 +332,7 @@ def create_execution_history(
             task_id=task_id,
             agent_type=agent,
             start_time=start_time,
-            end_time=start_time + timedelta(minutes=random.randint(15, 120)),
+            end_time=start_time + timedelta(minutes=secrets.randbelow(106) + 15),
             status=TaskStatus.COMPLETED
             if i < execution_count - 1
             else TaskStatus.IN_PROGRESS,
@@ -498,7 +498,9 @@ def create_complex_task() -> TaskCore:
     """Create a complex task for advanced testing."""
     return create_task_core(
         title="Complex Integration Task",
-        description="A complex task requiring multiple components and careful coordination",
+        description=(
+            "A complex task requiring multiple components and careful coordination"
+        ),
         component_area=ComponentArea.ARCHITECTURE,
         complexity=TaskComplexity.VERY_HIGH,
         priority=TaskPriority.CRITICAL,

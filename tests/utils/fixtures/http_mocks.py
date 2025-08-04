@@ -12,8 +12,8 @@ external service integrations with comprehensive mock data that covers:
 
 import json
 from datetime import UTC, datetime
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock
+from typing import Any, ClassVar
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 from pytest import fixture
@@ -23,7 +23,7 @@ class ResponseTemplates:
     """Pre-built response templates for different API scenarios."""
 
     # Exa API Response Templates
-    EXA_SEARCH_SUCCESS = {
+    EXA_SEARCH_SUCCESS: ClassVar[dict] = {
         "requestId": "exa-req-{timestamp}",
         "resolvedSearchType": "neural",
         "searchType": "auto",
@@ -35,14 +35,22 @@ class ResponseTemplates:
                 "author": "Real Python Team",
                 "score": 0.96,
                 "id": "exa-result-1",
-                "text": "Python's asyncio library is a powerful tool for writing asynchronous code. This comprehensive guide covers everything from basic concepts to advanced patterns for building high-performance applications.",
+                "text": (
+                    "Python's asyncio library is a powerful tool for writing "
+                    "asynchronous code. This comprehensive guide covers everything "
+                    "from basic concepts to advanced patterns for building "
+                    "high-performance applications."
+                ),
                 "highlights": [
                     "asyncio library is a powerful tool",
                     "asynchronous code",
                     "high-performance applications",
                 ],
                 "highlightScores": [0.94, 0.91, 0.89],
-                "summary": "Complete guide to Python asyncio programming with practical examples",
+                "summary": (
+                    "Complete guide to Python asyncio programming with "
+                    "practical examples"
+                ),
             },
             {
                 "title": "Advanced Async Patterns in Python",
@@ -51,7 +59,11 @@ class ResponseTemplates:
                 "author": "Python Documentation Team",
                 "score": 0.93,
                 "id": "exa-result-2",
-                "text": "Advanced patterns for using asyncio including context managers, queues, and synchronization primitives for building robust concurrent applications.",
+                "text": (
+                    "Advanced patterns for using asyncio including context "
+                    "managers, queues, and synchronization primitives for "
+                    "building robust concurrent applications."
+                ),
                 "highlights": [
                     "Advanced patterns for using asyncio",
                     "context managers, queues",
@@ -64,7 +76,7 @@ class ResponseTemplates:
         "costDollars": {"total": 0.003, "search": 0.002, "contents": 0.001},
     }
 
-    EXA_SEARCH_EMPTY = {
+    EXA_SEARCH_EMPTY: ClassVar[dict] = {
         "requestId": "exa-req-empty-{timestamp}",
         "resolvedSearchType": "neural",
         "searchType": "auto",
@@ -72,27 +84,37 @@ class ResponseTemplates:
         "costDollars": {"total": 0.001},
     }
 
-    EXA_CONTENTS_SUCCESS = {
+    EXA_CONTENTS_SUCCESS: ClassVar[dict] = {
         "results": [
             {
                 "id": "exa-content-1",
                 "title": "Full Article Content",
                 "url": "https://example.com/full-article",
-                "text": "This is the complete text content of the article, providing comprehensive information about the topic with detailed explanations, code examples, and best practices. The content includes multiple sections covering fundamentals, advanced concepts, and real-world applications.",
+                "text": "This is the complete text content of the article, providing \
+comprehensive information about the topic with detailed \
+explanations, code examples, and best practices. The content \
+includes multiple sections covering fundamentals, advanced \
+concepts, and real-world applications.",
                 "highlights": [
                     "comprehensive information about the topic",
                     "detailed explanations, code examples",
                     "best practices",
                     "real-world applications",
                 ],
-                "summary": "Comprehensive article covering fundamentals through advanced applications",
+                "summary": (
+                    "Comprehensive article covering fundamentals through "
+                    "advanced applications"
+                ),
             }
         ]
     }
 
-    EXA_RESEARCH_TASK_CREATED = {"id": "research-task-{timestamp}", "status": "pending"}
+    EXA_RESEARCH_TASK_CREATED: ClassVar[dict] = {
+        "id": "research-task-{timestamp}",
+        "status": "pending",
+    }
 
-    EXA_RESEARCH_TASK_COMPLETED = {
+    EXA_RESEARCH_TASK_COMPLETED: ClassVar[dict] = {
         "status": "completed",
         "result": {
             "summary": "Comprehensive research findings on the requested topic",
@@ -111,12 +133,14 @@ class ResponseTemplates:
     }
 
     # Firecrawl API Response Templates
-    FIRECRAWL_SCRAPE_SUCCESS = {
+    FIRECRAWL_SCRAPE_SUCCESS: ClassVar[dict] = {
         "success": True,
         "data": {
             "markdown": """# Example Domain
 
-This domain is for use in illustrative examples in documents. You may use this domain in literature without prior coordination or asking for permission.
+This domain is for use in illustrative examples in documents. \
+You may use this domain in literature without prior coordination \
+or asking for permission.
 
 ## More Information
 
@@ -187,7 +211,10 @@ Phone: +1-555-0123""",
                 "https://example.com/docs",
                 "https://example.com/privacy",
             ],
-            "screenshot": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+            "screenshot": (
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJ"
+                "AAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+            ),
             "json": {
                 "title": "Example Domain",
                 "description": "This domain is for use in illustrative examples",
@@ -201,7 +228,9 @@ Phone: +1-555-0123""",
             },
             "metadata": {
                 "title": "Example Domain",
-                "description": "This domain is for use in illustrative examples in documents",
+                "description": (
+                    "This domain is for use in illustrative examples in documents"
+                ),
                 "language": "en",
                 "keywords": "example, domain, documentation, testing",
                 "robots": "index, follow",
@@ -216,18 +245,18 @@ Phone: +1-555-0123""",
         },
     }
 
-    FIRECRAWL_SCRAPE_ERROR = {
+    FIRECRAWL_SCRAPE_ERROR: ClassVar[dict] = {
         "success": False,
         "error": "URL not accessible: Connection timeout after 30 seconds",
     }
 
-    FIRECRAWL_CRAWL_STARTED = {
+    FIRECRAWL_CRAWL_STARTED: ClassVar[dict] = {
         "success": True,
         "id": "crawl-{timestamp}",
         "url": "https://api.firecrawl.dev/v1/crawl/crawl-{timestamp}",
     }
 
-    FIRECRAWL_CRAWL_COMPLETED = {
+    FIRECRAWL_CRAWL_COMPLETED: ClassVar[dict] = {
         "success": True,
         "status": "completed",
         "total": 25,
@@ -237,7 +266,10 @@ Phone: +1-555-0123""",
         "next": None,
         "data": [
             {
-                "markdown": "# Home Page\n\nWelcome to our website. This is the main landing page with information about our services and company.",
+                "markdown": (
+                    "# Home Page\n\nWelcome to our website. This is the main "
+                    "landing page with information about our services and company."
+                ),
                 "html": "<h1>Home Page</h1><p>Welcome to our website.</p>",
                 "metadata": {
                     "title": "Home - Company Website",
@@ -246,7 +278,10 @@ Phone: +1-555-0123""",
                 },
             },
             {
-                "markdown": "# About Us\n\nLearn more about our company, our mission, and our team of experts.",
+                "markdown": (
+                    "# About Us\n\nLearn more about our company, our mission, "
+                    "and our team of experts."
+                ),
                 "html": "<h1>About Us</h1><p>Learn more about our company.</p>",
                 "metadata": {
                     "title": "About Us - Company Website",
@@ -255,7 +290,10 @@ Phone: +1-555-0123""",
                 },
             },
             {
-                "markdown": "# Services\n\nWe offer a comprehensive range of professional services to meet your business needs.",
+                "markdown": (
+                    "# Services\n\nWe offer a comprehensive range of "
+                    "professional services to meet your business needs."
+                ),
                 "html": "<h1>Services</h1><p>We offer professional services.</p>",
                 "metadata": {
                     "title": "Services - Company Website",
@@ -266,7 +304,7 @@ Phone: +1-555-0123""",
         ],
     }
 
-    FIRECRAWL_MAP_SUCCESS = {
+    FIRECRAWL_MAP_SUCCESS: ClassVar[dict[str, Any]] = {
         "success": True,
         "links": [
             "https://example.com",
@@ -283,7 +321,7 @@ Phone: +1-555-0123""",
     }
 
     # Error Response Templates
-    ERROR_RATE_LIMIT = {
+    ERROR_RATE_LIMIT: ClassVar[dict[str, Any]] = {
         "error": {
             "message": "Rate limit exceeded. Please try again later.",
             "type": "rate_limit",
@@ -291,18 +329,18 @@ Phone: +1-555-0123""",
         }
     }
 
-    ERROR_UNAUTHORIZED = {
+    ERROR_UNAUTHORIZED: ClassVar[dict[str, Any]] = {
         "error": {"message": "Invalid API key provided", "type": "unauthorized"}
     }
 
-    ERROR_QUOTA_EXCEEDED = {
+    ERROR_QUOTA_EXCEEDED: ClassVar[dict[str, Any]] = {
         "error": {
             "message": "Monthly quota exceeded. Please upgrade your plan.",
             "type": "quota_exceeded",
         }
     }
 
-    ERROR_SERVICE_UNAVAILABLE = {
+    ERROR_SERVICE_UNAVAILABLE: ClassVar[dict[str, Any]] = {
         "error": {
             "message": "Service temporarily unavailable due to maintenance",
             "type": "service_unavailable",
@@ -436,6 +474,7 @@ def unauthorized_response(response_templates):
 @fixture
 async def mock_exa_client():
     """Mock Exa client with common response patterns."""
+    # Already defined patch import from unittest.mock
     with patch("httpx.AsyncClient") as mock_client_class:
         mock_client = AsyncMock()
         mock_client_class.return_value = mock_client
@@ -458,6 +497,7 @@ async def mock_exa_client():
 @fixture
 async def mock_firecrawl_client():
     """Mock Firecrawl client with common response patterns."""
+    # Already defined patch import from unittest.mock
     with patch("httpx.AsyncClient") as mock_client_class:
         mock_client = AsyncMock()
         mock_client_class.return_value = mock_client

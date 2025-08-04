@@ -243,7 +243,8 @@ class TestModularOrchestratorInitialization:
             patch(
                 "src.agents.research_agent.ResearchAgent.create_default",
                 side_effect=Exception("Agent init failed"),
-            ),pytest.raises(Exception, match="Agent init failed")
+            ),
+            pytest.raises(Exception, match="Agent init failed"),
         ):
             ModularOrchestrator(config_path=config_file, openai_api_key="test-key")
 
@@ -260,7 +261,8 @@ class TestModularOrchestratorWorkflowCreation:
     async def test_workflow_creation_includes_all_nodes(
         self, orchestrator_with_workflow
     ):
-        """Test that workflow includes supervisor, agent, coordination, and finalization nodes."""
+        """Test that workflow includes supervisor, agent, coordination, and
+        finalization nodes."""
         workflow = orchestrator_with_workflow.workflow
 
         # Verify workflow is compiled StateGraph
@@ -540,9 +542,11 @@ class TestModularOrchestratorTaskExecution:
         """Test task execution with non-existent task."""
         task_id = 999
 
-        with patch.object(mock_orchestrator, "_get_task_data", return_value=None):
-            with pytest.raises(ValueError, match=f"Task {task_id} not found"):
-                await mock_orchestrator.execute_task(task_id)
+        with (
+            patch.object(mock_orchestrator, "_get_task_data", return_value=None),
+            pytest.raises(ValueError, match=f"Task {task_id} not found"),
+        ):
+            await mock_orchestrator.execute_task(task_id)
 
     @pytest.mark.asyncio
     async def test_execute_task_workflow_exception(self, mock_orchestrator):

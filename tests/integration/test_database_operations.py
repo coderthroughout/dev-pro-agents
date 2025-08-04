@@ -4,6 +4,7 @@ This module provides testing for database initialization, session management,
 connection handling, and schema validation.
 """
 
+import sqlite3
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -47,9 +48,8 @@ class TestDatabaseFixtures:
     @pytest.fixture
     def temp_db_path(self):
         """Create temporary database path."""
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".db")
-        temp_file.close()
-        db_path = temp_file.name
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".db") as temp_file:
+            db_path = temp_file.name
 
         yield db_path
 
@@ -196,10 +196,12 @@ class TestSessionContextManager(TestDatabaseFixtures):
         task_entity = Task.from_core_model(sample_task_core)
 
         # Temporarily patch the engine to use our temp engine
-        with patch("src.database.engine", temp_engine):
-            with get_session_context() as session:
-                session.add(task_entity)
-                # Don't manually commit - should be done automatically
+        with (
+            patch("src.database.engine", temp_engine),
+            get_session_context() as session,
+        ):
+            session.add(task_entity)
+            # Don't manually commit - should be done automatically
 
         # Verify task was committed
         with Session(temp_engine) as verify_session:
@@ -242,14 +244,16 @@ class TestSessionContextManager(TestDatabaseFixtures):
         task2_core.title = "Nested Task 2"
         task2_entity = Task.from_core_model(task2_core)
 
-        with patch("src.database.engine", temp_engine):
-            with get_session_context() as outer_session:
-                outer_session.add(task1_entity)
+        with (
+            patch("src.database.engine", temp_engine),
+            get_session_context() as outer_session,
+        ):
+            outer_session.add(task1_entity)
 
-                with get_session_context() as inner_session:
-                    # This is a different session
-                    assert inner_session is not outer_session
-                    inner_session.add(task2_entity)
+            with get_session_context() as inner_session:
+                # This is a different session
+                assert inner_session is not outer_session
+                inner_session.add(task2_entity)
 
         # Both tasks should be committed by their respective sessions
         with Session(temp_engine) as verify_session:
@@ -265,10 +269,12 @@ class TestSessionContextManager(TestDatabaseFixtures):
 
     def test_get_session_context_exception_propagation(self, temp_engine):
         """Test that exceptions are properly propagated."""
-        with patch("src.database.engine", temp_engine):
-            with pytest.raises(ValueError, match="Test exception"):
-                with get_session_context():
-                    raise ValueError("Test exception")
+        with (
+            patch("src.database.engine", temp_engine),
+            pytest.raises(ValueError, match="Test exception"),
+            get_session_context(),
+        ):
+            raise ValueError("Test exception")
 
 
 class TestDatabaseVerification(TestDatabaseFixtures):
@@ -412,18 +418,22 @@ class TestDatabaseErrorHandling(TestDatabaseFixtures):
         engine1 = create_engine(f"sqlite:///{temp_db_path}")
         engine2 = create_engine(f"sqlite:///{temp_db_path}")
 
-        with patch("src.database.engine", engine1):
-            with get_session_context() as session1:
-                # Start a transaction that locks the database
-                session1.exec(text("BEGIN EXCLUSIVE"))
+        with (
+            patch("src.database.engine", engine1),
+            get_session_context() as session1,
+        ):
+            # Start a transaction that locks the database
+            session1.exec(text("BEGIN EXCLUSIVE"))
 
-                # Try to access with second connection (should handle gracefully)
-                with patch("src.database.engine", engine2):
-                    with pytest.raises(
-                        Exception
-                    ):  # Could be various lock-related exceptions
-                        with get_session_context() as session2:
-                            session2.exec(text("SELECT 1"))
+            # Try to access with second connection (should handle gracefully)
+            with (
+                patch("src.database.engine", engine2),
+                pytest.raises(
+                    (sqlite3.OperationalError, sqlite3.DatabaseError)
+                ),  # Specific database lock exceptions
+                get_session_context() as session2,
+            ):
+                session2.exec(text("SELECT 1"))
 
     def test_verify_database_partial_failure(self, temp_engine):
         """Test database verification with partial table access failure."""
@@ -484,7 +494,7 @@ class TestDatabaseConcurrency(TestDatabaseFixtures):
         sessions = [Session(temp_engine) for _ in range(5)]
 
         try:
-            for i, (session, task_core) in enumerate(
+            for _i, (session, task_core) in enumerate(
                 zip(sessions, task_cores, strict=False)
             ):
                 task_entity = Task.from_core_model(task_core)
@@ -555,7 +565,9 @@ class TestDatabaseSchemaValidation(TestDatabaseFixtures):
                 task2.uuid = valid_task.uuid  # Duplicate UUID
                 session.add(task2)
 
-                with pytest.raises(Exception):  # Should violate unique constraint
+                with pytest.raises(
+                    (SQLAlchemyError, sqlite3.IntegrityError)
+                ):  # Should violate unique constraint
                     session.commit()
 
                 session.rollback()
@@ -589,7 +601,9 @@ class TestDatabaseSchemaValidation(TestDatabaseFixtures):
             )
             session.add(duplicate_dependency)
 
-            with pytest.raises(Exception):  # Should violate unique constraint
+            with pytest.raises(
+                (SQLAlchemyError, sqlite3.IntegrityError)
+            ):  # Should violate unique constraint
                 session.commit()
 
             session.rollback()
@@ -618,7 +632,9 @@ class TestDatabaseSchemaValidation(TestDatabaseFixtures):
             )
             session.add(invalid_progress)
 
-            with pytest.raises(Exception):  # Should violate foreign key constraint
+            with pytest.raises(
+                (SQLAlchemyError, sqlite3.IntegrityError)
+            ):  # Should violate foreign key constraint
                 session.commit()
 
             session.rollback()

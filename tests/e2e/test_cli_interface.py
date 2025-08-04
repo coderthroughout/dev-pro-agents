@@ -240,14 +240,16 @@ class TestCLICommands:
     def mock_batch_report(self):
         """Mock batch execution report."""
 
+        from typing import ClassVar
+
         class MockReport:
-            batch_id = "batch_20250101_100000"
-            total_tasks = 10
-            completed_tasks = 8
-            failed_tasks = 2
-            success_rate = 0.8
-            total_duration_minutes = 45.5
-            agent_performance = {
+            batch_id: ClassVar[str] = "batch_20250101_100000"
+            total_tasks: ClassVar[int] = 10
+            completed_tasks: ClassVar[int] = 8
+            failed_tasks: ClassVar[int] = 2
+            success_rate: ClassVar[float] = 0.8
+            total_duration_minutes: ClassVar[float] = 45.5
+            agent_performance: ClassVar[dict[str, dict[str, float]]] = {
                 "coding_expert": {
                     "tasks_completed": 5,
                     "tasks_executed": 6,
@@ -261,7 +263,7 @@ class TestCLICommands:
                     "average_duration_minutes": 8.2,
                 },
             }
-            recommendations = [
+            recommendations: ClassVar[list[str]] = [
                 "Consider increasing timeout for complex tasks",
                 "Optimize agent coordination for better performance",
             ]
@@ -372,7 +374,8 @@ class TestCLICommands:
         mock_tasks = [
             {
                 "id": 1,
-                "title": "Implement authentication system with JWT tokens and user management",
+                "title": "Implement authentication system with JWT tokens and user "
+                "management",
                 "component_area": "security",
                 "priority": "high",
                 "status": "in_progress",

@@ -488,7 +488,10 @@ class TestServiceIntegrationScenarios:
         mock_result = MagicMock()
         mock_result.title = "Advanced Authentication Patterns"
         mock_result.url = "https://auth-patterns.com/advanced"
-        mock_result.text = "Advanced patterns for secure authentication including OAuth 2.0, SAML, and multi-factor authentication."
+        mock_result.text = (
+            "Advanced patterns for secure authentication including OAuth 2.0, "
+            "SAML, and multi-factor authentication."
+        )
         mock_result.score = 0.92
         mock_result.summary = "Comprehensive authentication patterns guide"
 

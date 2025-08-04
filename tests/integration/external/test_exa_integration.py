@@ -337,7 +337,9 @@ class TestExaClientSearchAPI:
                     "author": "LangChain Team",
                     "score": 0.98,
                     "id": "result-1",
-                    "text": "LangGraph is a library for building stateful applications...",
+                    "text": (
+                        "LangGraph is a library for building stateful applications..."
+                    ),
                     "highlights": ["LangGraph", "stateful applications"],
                     "highlightScores": [0.95, 0.87],
                     "summary": "Comprehensive guide to LangGraph framework",
@@ -494,7 +496,10 @@ class TestExaClientContentsAPI:
                         "id": "content-1",
                         "title": "Full Content Article",
                         "url": "https://example.com/article",
-                        "text": "This is the full article content with detailed information...",
+                        "text": (
+                            "This is the full article content with detailed "
+                            "information..."
+                        ),
                         "highlights": ["detailed information", "comprehensive"],
                         "summary": "Article provides comprehensive information",
                     }
@@ -652,7 +657,10 @@ class TestExaClientAnswerAPI:
             mock_response = AsyncMock()
             mock_response.raise_for_status.return_value = None
             mock_response.json.return_value = {
-                "answer": "LangGraph is a framework for building stateful applications with LLMs.",
+                "answer": (
+                    "LangGraph is a framework for building stateful applications "
+                    "with LLMs."
+                ),
                 "sources": [
                     {"url": "https://docs.langchain.com", "title": "LangChain Docs"},
                     {
@@ -670,9 +678,8 @@ class TestExaClientAnswerAPI:
             # Verify response structure
             assert "answer" in result
             assert "sources" in result
-            assert (
-                result["answer"]
-                == "LangGraph is a framework for building stateful applications with LLMs."
+            assert result["answer"] == (
+                "LangGraph is a framework for building stateful applications with LLMs."
             )
             assert len(result["sources"]) == 2
             assert result["confidence"] == 0.92
@@ -801,7 +808,9 @@ class TestExaClientResearchAPI:
             mock_response.json.return_value = {
                 "status": "completed",
                 "result": {
-                    "summary": "AI is rapidly evolving with significant advances in LLMs",
+                    "summary": (
+                        "AI is rapidly evolving with significant advances in LLMs"
+                    ),
                     "key_findings": ["GPT models improving", "More efficient training"],
                     "confidence_score": 0.87,
                 },
@@ -1169,7 +1178,9 @@ class TestExaClientLiveIntegration:
         async with ExaClient(api_key=api_key) as client:
             # Create a simple research task
             task = await client.create_research_task(
-                instructions="Briefly summarize the current state of Python async programming",
+                instructions=(
+                    "Briefly summarize the current state of Python async programming"
+                ),
                 model="exa-research",
             )
 

@@ -193,12 +193,16 @@ def create_realistic_task_scenario() -> list[TaskCore]:
         TaskCore(
             id=1,
             title="Research authentication best practices",
-            description="Investigate secure authentication patterns and JWT implementation",
+            description=(
+                "Investigate secure authentication patterns and JWT implementation"
+            ),
             component_area=ComponentArea.SECURITY,
             phase=1,
             priority=TaskPriority.HIGH,
             complexity=TaskComplexity.MEDIUM,
-            success_criteria="Identify 3+ authentication patterns with security analysis",
+            success_criteria=(
+                "Identify 3+ authentication patterns with security analysis"
+            ),
             time_estimate_hours=3.0,
         ),
         TaskCore(
@@ -228,7 +232,9 @@ def create_realistic_task_scenario() -> list[TaskCore]:
         TaskCore(
             id=4,
             title="Document authentication system",
-            description="Create comprehensive documentation for authentication implementation",
+            description=(
+                "Create comprehensive documentation for authentication implementation"
+            ),
             component_area=ComponentArea.DOCUMENTATION,
             phase=4,
             priority=TaskPriority.LOW,
@@ -405,7 +411,7 @@ class TestCompleteWorkflowExecution:
         assert len(doc_executions) >= 1  # Documentation agent for doc task
 
         # Verify all executions were successful
-        for task_id, task_results in workflow_results.items():
+        for _task_id, task_results in workflow_results.items():
             assert len(task_results) > 0
             assert all(result["report"].success for result in task_results)
 
@@ -450,7 +456,7 @@ class TestCompleteWorkflowExecution:
         env["firecrawl_client"].scrape.side_effect = track_firecrawl_scrape
 
         # Simulate research agent workflow with external services
-        research_task = TaskCore(
+        TaskCore(
             id=1,
             title="Research API security patterns",
             description="Find comprehensive information about API security",
@@ -511,7 +517,6 @@ class TestSystemStressAndResilience:
     @pytest.mark.asyncio
     async def test_high_concurrency_stress_test(self, end_to_end_environment):
         """Test system behavior under high concurrent load."""
-        env = end_to_end_environment
 
         # Create high-concurrency scenario
         concurrent_tasks = 50
@@ -519,7 +524,6 @@ class TestSystemStressAndResilience:
         max_concurrent_batches = 5
 
         # Track system metrics
-        batch_metrics = []
         error_count = 0
 
         async def process_stress_batch(batch_id: int) -> dict[str, Any]:
@@ -614,9 +618,7 @@ class TestSystemStressAndResilience:
         successful_batches = [
             r for r in batch_results if isinstance(r, dict) and "error" not in r
         ]
-        failed_batches = [
-            r for r in batch_results if not isinstance(r, dict) or "error" in r
-        ]
+        [r for r in batch_results if not isinstance(r, dict) or "error" in r]
 
         total_tasks_processed = sum(
             len(batch.get("results", [])) for batch in successful_batches
@@ -624,9 +626,7 @@ class TestSystemStressAndResilience:
         total_successful_tasks = sum(
             batch.get("success_count", 0) for batch in successful_batches
         )
-        total_failed_tasks = sum(
-            batch.get("failure_count", 0) for batch in successful_batches
-        )
+        sum(batch.get("failure_count", 0) for batch in successful_batches)
 
         # Verify stress test outcomes
         assert len(successful_batches) > 0  # Some batches should succeed
@@ -647,7 +647,6 @@ class TestSystemStressAndResilience:
     @pytest.mark.asyncio
     async def test_cascading_failure_recovery(self, end_to_end_environment):
         """Test system recovery from cascading failures."""
-        env = end_to_end_environment
 
         # Simulate cascading failure scenario
         failure_progression = {
@@ -658,7 +657,6 @@ class TestSystemStressAndResilience:
             "phase_5": {"failure_rate": 0.05, "recovery_time": 0.01},  # Stabilized
         }
 
-        phase_results = {}
         current_phase = 0
         phase_names = list(failure_progression.keys())
 
@@ -704,7 +702,7 @@ class TestSystemStressAndResilience:
 
         # Analyze cascading failure pattern
         phase_analysis = {}
-        for i, (status, result) in enumerate(request_results):
+        for i, (status, _result) in enumerate(request_results):
             phase_index = i // 10  # 10 requests per phase
             if phase_index < len(phase_names):
                 phase_name = phase_names[phase_index]
@@ -744,7 +742,6 @@ class TestSystemStressAndResilience:
     @pytest.mark.asyncio
     async def test_resource_exhaustion_handling(self, end_to_end_environment):
         """Test system behavior under resource exhaustion conditions."""
-        env = end_to_end_environment
 
         # Simulate resource exhaustion scenario
         max_memory_usage = 50 * 1024 * 1024  # 50MB limit
@@ -814,7 +811,6 @@ class TestSystemStressAndResilience:
 
         # Test resource exhaustion with concurrent operations
         num_operations = 25
-        operation_results = []
 
         # Execute operations concurrently (this should trigger resource exhaustion)
         semaphore = asyncio.Semaphore(15)  # Allow more concurrency than resources
@@ -847,7 +843,7 @@ class TestSystemStressAndResilience:
         assert success_rate > 0.2  # Should maintain at least 20% functionality
 
         # Verify different types of resource exhaustion
-        exhaustion_types = set(event["type"] for event in resource_exhaustion_events)
+        exhaustion_types = {event["type"] for event in resource_exhaustion_events}
         assert len(exhaustion_types) > 0  # Should have resource exhaustion events
 
         # Verify resources were properly cleaned up
@@ -870,7 +866,9 @@ class TestProductionScenarioSimulation:
             TaskCore(
                 id=1,
                 title="Research user authentication requirements",
-                description="Analyze requirements for secure user authentication system",
+                description=(
+                    "Analyze requirements for secure user authentication system"
+                ),
                 component_area=ComponentArea.SECURITY,
                 phase=1,
                 priority=TaskPriority.HIGH,
@@ -975,7 +973,9 @@ class TestProductionScenarioSimulation:
                     design_results.append(
                         {
                             "task_id": task.id,
-                            "architecture": "JWT-based authentication with refresh tokens",
+                            "architecture": (
+                                "JWT-based authentication with refresh tokens"
+                            ),
                             "duration": 0.15,
                         }
                     )
@@ -1090,7 +1090,6 @@ class TestProductionScenarioSimulation:
     @pytest.mark.asyncio
     async def test_production_monitoring_and_alerting(self, end_to_end_environment):
         """Test production monitoring and alerting scenarios."""
-        env = end_to_end_environment
 
         # Simulate production monitoring scenario
         monitoring_metrics = {
@@ -1215,11 +1214,10 @@ class TestProductionScenarioSimulation:
         assert 50 <= avg_memory_usage <= 110
 
         # Verify alerting system
-        alert_types = set(
-            alert["type"] for alert in monitoring_metrics["alert_triggers"]
-        )
+        alert_types = {alert["type"] for alert in monitoring_metrics["alert_triggers"]}
 
-        # Should have triggered some alerts (system designed to occasionally exceed thresholds)
+        # Should have triggered some alerts (system designed to occasionally
+        # exceed thresholds)
         if len(monitoring_metrics["alert_triggers"]) > 0:
             # Verify alert structure
             for alert in monitoring_metrics["alert_triggers"]:
@@ -1243,7 +1241,6 @@ class TestProductionScenarioSimulation:
     @pytest.mark.asyncio
     async def test_disaster_recovery_simulation(self, end_to_end_environment):
         """Test disaster recovery and system restoration scenarios."""
-        env = end_to_end_environment
 
         # Simulate disaster recovery scenario
         disaster_events = [
@@ -1294,16 +1291,18 @@ class TestProductionScenarioSimulation:
                                         "disaster_type": disaster["type"],
                                     }
                                 )
-                        elif disaster["type"] == "network_partition":
-                            if system_state["network_available"]:
-                                system_state["network_available"] = False
-                                recovery_actions.append(
-                                    {
-                                        "action": "activate_offline_mode",
-                                        "timestamp": current_time,
-                                        "disaster_type": disaster["type"],
-                                    }
-                                )
+                        elif (
+                            disaster["type"] == "network_partition"
+                            and system_state["network_available"]
+                        ):
+                            system_state["network_available"] = False
+                            recovery_actions.append(
+                                {
+                                    "action": "activate_offline_mode",
+                                    "timestamp": current_time,
+                                    "disaster_type": disaster["type"],
+                                }
+                            )
                     elif current_time > disaster_end:
                         # Disaster has ended, start recovery
                         if disaster["type"] == "database_failure":
@@ -1326,16 +1325,18 @@ class TestProductionScenarioSimulation:
                                         "disaster_type": disaster["type"],
                                     }
                                 )
-                        elif disaster["type"] == "network_partition":
-                            if not system_state["network_available"]:
-                                system_state["network_available"] = True
-                                recovery_actions.append(
-                                    {
-                                        "action": "restore_network_connectivity",
-                                        "timestamp": current_time,
-                                        "disaster_type": disaster["type"],
-                                    }
-                                )
+                        elif (
+                            disaster["type"] == "network_partition"
+                            and not system_state["network_available"]
+                        ):
+                            system_state["network_available"] = True
+                            recovery_actions.append(
+                                {
+                                    "action": "restore_network_connectivity",
+                                    "timestamp": current_time,
+                                    "disaster_type": disaster["type"],
+                                }
+                            )
 
                 # Simulate system operations based on current state
                 system_operational = (
@@ -1374,9 +1375,9 @@ class TestProductionScenarioSimulation:
             assert expected_action in action_types
 
         # Verify disaster types were handled
-        disaster_types_handled = set(
+        disaster_types_handled = {
             action["disaster_type"] for action in recovery_actions
-        )
+        }
         expected_disaster_types = {
             "database_failure",
             "api_service_outage",
@@ -1393,7 +1394,7 @@ class TestProductionScenarioSimulation:
             recovery_pairs[disaster_type].append(action)
 
         # Each disaster should have activation and restoration actions
-        for disaster_type, actions in recovery_pairs.items():
+        for _disaster_type, actions in recovery_pairs.items():
             assert len(actions) >= 2  # At least activation and restoration
 
             # Verify restoration happens after activation

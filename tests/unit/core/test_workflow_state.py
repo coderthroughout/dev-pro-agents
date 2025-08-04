@@ -375,17 +375,23 @@ class TestAgentStateValidationPatterns:
             issues = []
 
             # Check task_id consistency
-            if state["task_id"] and state["task_data"]:
-                if state["task_data"].get("id") != state["task_id"]:
-                    issues.append("Task ID mismatch between task_id and task_data.id")
+            if (
+                state["task_id"]
+                and state["task_data"]
+                and state["task_data"].get("id") != state["task_id"]
+            ):
+                issues.append("Task ID mismatch between task_id and task_data.id")
 
             # Check agent outputs reference valid agents
-            if state["next_agent"] and state["agent_outputs"]:
-                if state["next_agent"] in state["agent_outputs"]:
-                    # Next agent already has output - might be inconsistent
-                    agent_output = state["agent_outputs"][state["next_agent"]]
-                    if agent_output.get("status") == "completed":
-                        issues.append("Next agent already completed - routing issue")
+            if (
+                state["next_agent"]
+                and state["agent_outputs"]
+                and state["next_agent"] in state["agent_outputs"]
+            ):
+                # Next agent already has output - might be inconsistent
+                agent_output = state["agent_outputs"][state["next_agent"]]
+                if agent_output.get("status") == "completed":
+                    issues.append("Next agent already completed - routing issue")
 
             # Check error context consistency
             if state["error_context"] and not any(

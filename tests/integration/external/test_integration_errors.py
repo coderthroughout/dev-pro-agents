@@ -989,7 +989,8 @@ class TestErrorMetricsAndMonitoring:
                     await client.search("test")
                     raise AssertionError("Should have raised an exception")
                 except Exception as e:
-                    # In a real implementation, you might have error classification logic
+                    # In a real implementation, you might have error
+                    # classification logic
                     if expected_type == "network":
                         assert "Connection refused" in str(e)
                     elif expected_type == "timeout":

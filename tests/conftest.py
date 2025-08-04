@@ -20,12 +20,6 @@ import pytest_asyncio
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # Import fixtures from other modules
-from tests.utils.agent_fixtures import (
-    mock_coding_agent,
-    mock_documentation_agent,
-    mock_research_agent,
-    mock_testing_agent,
-)  # Explicit imports
 from tests.utils.fixtures import *  # Import all fixtures from fixtures.py
 
 
@@ -40,103 +34,8 @@ def event_loop():
     loop.close()
 
 
-# Missing fixtures that tests are looking for
-@pytest.fixture
-def mock_research_agent():
-    """Mock research agent for testing."""
-    mock_agent = AsyncMock()
-
-    async def mock_execute_task(state):
-        return {
-            **state,
-            "agent_outputs": {
-                "research": {
-                    "status": "completed",
-                    "output": {
-                        "research_type": "web_search",
-                        "key_findings": ["JWT tokens secure", "Use HTTPS"],
-                        "sources_found": [
-                            {"title": "Auth Guide", "url": "https://example.com"}
-                        ],
-                    },
-                }
-            },
-        }
-
-    mock_agent.execute_task.side_effect = mock_execute_task
-    return mock_agent
-
-
-@pytest.fixture
-def mock_coding_agent():
-    """Mock coding agent for testing."""
-    mock_agent = AsyncMock()
-
-    async def mock_execute_task(state):
-        return {
-            **state,
-            "agent_outputs": {
-                "coding": {
-                    "status": "completed",
-                    "output": {
-                        "implementation_type": "code_generation",
-                        "files_created": ["auth.py"],
-                        "design_decisions": ["Used JWT tokens"],
-                        "content": "def authenticate(): pass",
-                    },
-                }
-            },
-        }
-
-    mock_agent.execute_task.side_effect = mock_execute_task
-    return mock_agent
-
-
-@pytest.fixture
-def mock_testing_agent():
-    """Mock testing agent for testing."""
-    mock_agent = AsyncMock()
-
-    async def mock_execute_task(state):
-        return {
-            **state,
-            "agent_outputs": {
-                "testing": {
-                    "status": "completed",
-                    "output": {
-                        "test_files": ["test_auth.py"],
-                        "test_categories": ["unit_tests", "integration_tests"],
-                        "coverage_report": {"total": 95.0},
-                    },
-                }
-            },
-        }
-
-    mock_agent.execute_task.side_effect = mock_execute_task
-    return mock_agent
-
-
-@pytest.fixture
-def mock_documentation_agent():
-    """Mock documentation agent for testing."""
-    mock_agent = AsyncMock()
-
-    async def mock_execute_task(state):
-        return {
-            **state,
-            "agent_outputs": {
-                "documentation": {
-                    "status": "completed",
-                    "output": {
-                        "documentation_files": ["README.md"],
-                        "sections_created": ["installation", "usage"],
-                    },
-                }
-            },
-        }
-
-    mock_agent.execute_task.side_effect = mock_execute_task
-    return mock_agent
+# Agent fixtures are imported from tests.utils.agent_fixtures
+# Additional fixtures for specific test scenarios
 
 
 @pytest.fixture
@@ -159,134 +58,169 @@ def agent_state_with_research_context():
                     "sources_found": [
                         {"title": "JWT Guide", "url": "https://example.com/jwt"}
                     ],
-                },
-                "status": "completed",
+                }
             }
         },
+        "coordination_context": {},
+        "batch_id": None,
+        "error_context": None,
+        "next_agent": None,
     }
 
 
 @pytest.fixture
-def agent_state_with_coding_context():
-    """Agent state with coding context."""
+def agent_state_with_all_outputs():
+    """Agent state with outputs from all agents."""
     return {
         "task_id": 1,
         "task_data": {
             "id": 1,
-            "title": "Test authentication system",
-            "description": "Create tests for login functionality",
+            "title": "Complete system implementation",
+            "description": "End-to-end system development",
+            "component_area": "full_stack",
         },
         "messages": [],
         "agent_outputs": {
-            "coding": {
-                "output": {
-                    "implementation_type": "code_generation",
-                    "files_created": ["auth.py", "models.py"],
-                    "design_decisions": ["Used JWT for tokens"],
-                    "content": "def authenticate(): pass",
-                },
+            "research": {
                 "status": "completed",
-            }
+                "output": {
+                    "research_type": "comprehensive",
+                    "key_findings": [
+                        "Use modern tech stack",
+                        "Follow security best practices",
+                    ],
+                    "sources_found": [
+                        {"title": "Tech Guide", "url": "https://example.com/tech"}
+                    ],
+                },
+            },
+            "coding": {
+                "status": "completed",
+                "output": {
+                    "implementation_type": "full_stack",
+                    "files_created": ["backend.py", "frontend.js"],
+                    "design_decisions": ["RESTful API", "JWT authentication"],
+                },
+            },
+            "testing": {
+                "status": "completed",
+                "output": {
+                    "test_type": "comprehensive",
+                    "tests_generated": ["test_backend.py", "test_frontend.js"],
+                    "coverage_report": {"overall": 95},
+                },
+            },
+            "documentation": {
+                "status": "completed",
+                "output": {
+                    "doc_type": "complete_suite",
+                    "docs_created": ["api.md", "user_guide.md"],
+                    "sections": ["API", "User Guide", "Setup"],
+                },
+            },
         },
+        "coordination_context": {
+            "workflow_complete": True,
+            "all_agents_executed": True,
+        },
+        "batch_id": None,
+        "error_context": None,
+        "next_agent": None,
     }
 
 
 @pytest.fixture
-def mock_orchestration_environment():
-    """Mock orchestration environment for integration tests."""
-    mock_env = {
-        "supervisor": AsyncMock(),
-        "task_manager": MagicMock(),
-        "agents": {
-            "research": AsyncMock(),
-            "coding": AsyncMock(),
-            "testing": AsyncMock(),
-            "documentation": AsyncMock(),
-        },
-    }
-
-    # Configure mock behavior
-    mock_env["task_manager"].get_ready_tasks.return_value = []
-    mock_env["task_manager"].update_task_status.return_value = None
-
-    return mock_env
+def mock_orchestrator():
+    """Mock orchestrator for testing."""
+    orchestrator = MagicMock()
+    orchestrator.execute_task = AsyncMock()
+    orchestrator.execute_batch = AsyncMock()
+    orchestrator.get_agent_health_status = MagicMock()
+    orchestrator.cleanup = AsyncMock()
+    return orchestrator
 
 
 @pytest.fixture
-def sample_complex_task():
-    """Sample complex task for testing."""
+def mock_agent_registry():
+    """Mock agent registry for testing."""
+    registry = MagicMock()
+    registry.register = MagicMock()
+    registry.unregister = MagicMock()
+    registry.get_agent = MagicMock()
+    registry.list_agents = MagicMock()
+    registry.get_health_status = MagicMock()
+    registry.cleanup_all = AsyncMock()
+    return registry
+
+
+@pytest.fixture
+def mock_task_manager():
+    """Mock task manager for testing."""
+    task_manager = MagicMock()
+    task_manager.create_task = MagicMock()
+    task_manager.get_task_by_id = MagicMock()
+    task_manager.update_task_status = MagicMock()
+    task_manager.get_task_analytics = MagicMock()
+    return task_manager
+
+
+@pytest.fixture
+def sample_task_data():
+    """Sample task data for testing."""
     return {
         "id": 1,
-        "title": "Implement comprehensive authentication system",
-        "description": "Implement secure authentication with JWT, "
-        "OAuth2, and multi-factor mechanisms",
+        "title": "Implement user authentication",
+        "description": "Create secure user login and registration system",
         "component_area": "security",
         "phase": 1,
         "priority": "high",
-        "complexity": "high",
-        "time_estimate_hours": 40.0,
-        "success_criteria": "Complete authentication system with 95%+ test coverage",
+        "complexity": "medium",
+        "status": "not_started",
+        "success_criteria": "Users can securely log in and register",
+        "time_estimate_hours": 8.0,
     }
 
 
-# Mock agent classes that some tests might try to import
-class MockResearchAgent:
-    def __init__(self):
-        pass
-
-    async def execute_task(self, state):
-        return {"status": "completed", "output": {"findings": ["Mock research result"]}}
-
-
-class MockCodingAgent:
-    def __init__(self):
-        pass
-
-    async def execute_task(self, state):
-        return {"status": "completed", "output": {"files_created": ["mock_file.py"]}}
+@pytest.fixture
+def sample_batch_config():
+    """Sample batch configuration for testing."""
+    return {
+        "batch_size": 5,
+        "max_concurrent_tasks": 3,
+        "timeout_minutes": 30,
+        "retry_attempts": 2,
+    }
 
 
-class MockTestingAgent:
-    def __init__(self):
-        pass
-
-    async def execute_task(self, state):
-        return {"status": "completed", "output": {"test_files": ["test_mock.py"]}}
-
-
-class MockDocumentationAgent:
-    def __init__(self):
-        pass
-
-    async def execute_task(self, state):
-        return {"status": "completed", "output": {"docs_created": ["README.md"]}}
+# Additional pytest markers for different test types
+pytest.mark.unit = pytest.mark.unit
+pytest.mark.integration = pytest.mark.integration
+pytest.mark.e2e = pytest.mark.e2e
+pytest.mark.performance = pytest.mark.performance
+pytest.mark.slow = pytest.mark.slow
 
 
-# Monkey patch for missing imports
-sys.modules["src.agents.research_agent"] = type(
-    "MockModule", (), {"ResearchAgent": MockResearchAgent}
-)()
+@pytest.fixture
+def clean_environment():
+    """Fixture to ensure clean test environment."""
+    # Setup
 
-sys.modules["src.agents.coding_agent"] = type(
-    "MockModule", (), {"CodingAgent": MockCodingAgent}
-)()
+    yield
 
-sys.modules["src.agents.testing_agent"] = type(
-    "MockModule", (), {"TestingAgent": MockTestingAgent}
-)()
-
-sys.modules["src.agents.documentation_agent"] = type(
-    "MockModule", (), {"DocumentationAgent": MockDocumentationAgent}
-)()
+    # Cleanup - restore any modified environment variables
+    # This is a placeholder for environment cleanup if needed
 
 
-# Mock TaskStatus enum for tests
-class MockTaskStatus:
-    COMPLETED = "completed"
-    FAILED = "failed"
-    IN_PROGRESS = "in_progress"
-    NOT_STARTED = "not_started"
+@pytest.fixture(scope="session")
+def test_database_path(tmp_path_factory):
+    """Create a temporary database path for testing."""
+    return tmp_path_factory.mktemp("test_db") / "test.db"
 
 
-# Add mock TaskStatus to sys.modules for imports
-sys.modules["src.schemas.unified_models"].TaskStatus = MockTaskStatus
+@pytest.fixture
+def mock_llm_client():
+    """Mock LLM client for testing."""
+    client = AsyncMock()
+    client.achat = AsyncMock()
+    client.chat = MagicMock()
+    return client

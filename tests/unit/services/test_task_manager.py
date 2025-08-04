@@ -4,9 +4,9 @@ This module provides comprehensive testing for task CRUD operations,
 dependency resolution, validation, analytics, and edge cases.
 """
 
-import os
 import sqlite3
 import tempfile
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -28,9 +28,8 @@ class TestTaskManagerFixtures:
     @pytest.fixture
     def temp_db_path(self):
         """Create a temporary SQLite database for testing."""
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".db")
-        temp_file.close()
-        db_path = temp_file.name
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".db") as temp_file:
+            db_path = temp_file.name
 
         # Create basic schema for testing
         conn = sqlite3.connect(db_path)
@@ -101,7 +100,7 @@ class TestTaskManagerFixtures:
         yield db_path
 
         # Cleanup
-        os.unlink(db_path)
+        Path(db_path).unlink(missing_ok=True)
 
     @pytest.fixture
     def task_manager(self, temp_db_path):

@@ -338,9 +338,17 @@ class TestFirecrawlClientScrapeAPI:
         mock_api_response = {
             "success": True,
             "data": {
-                "markdown": "# Example Domain\n\nThis domain is for use in illustrative examples...",
-                "html": "<h1>Example Domain</h1><p>This domain is for use in illustrative examples...</p>",
-                "rawHtml": "<!DOCTYPE html><html><head><title>Example</title></head>...",
+                "markdown": (
+                    "# Example Domain\n\nThis domain is for use in "
+                    "illustrative examples..."
+                ),
+                "html": (
+                    "<h1>Example Domain</h1><p>This domain is for use in "
+                    "illustrative examples...</p>"
+                ),
+                "rawHtml": (
+                    "<!DOCTYPE html><html><head><title>Example</title></head>..."
+                ),
                 "links": ["https://example.com", "https://example.com/about"],
                 "screenshot": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
                 "metadata": {
@@ -680,7 +688,9 @@ class TestFirecrawlClientCrawlAPI:
                     },
                     {
                         "markdown": "# About Us\nLearn more about our company...",
-                        "html": "<h1>About Us</h1><p>Learn more about our company...</p>",
+                        "html": (
+                            "<h1>About Us</h1><p>Learn more about our company...</p>"
+                        ),
                         "metadata": {
                             "title": "About Us",
                             "sourceURL": "https://example.com/about",

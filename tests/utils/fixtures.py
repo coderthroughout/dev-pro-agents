@@ -125,7 +125,7 @@ def configuration_scenarios():
 
     def _create_config_scenario(scenario_type: str, **kwargs) -> dict[str, Any]:
         """Create configuration scenario based on type."""
-        if scenario_type == "valid_complete":
+        if scenario_type == "valid_complete":  # noqa: SIM116
             return {
                 "environment": {
                     "OPENAI_API_KEY": "test-valid-openai",
@@ -203,7 +203,8 @@ def configuration_scenarios():
                     "EXA_API_KEY": "test-exa",
                     "FIRECRAWL_API_KEY": "test-firecrawl",
                     "ORCHESTRATION_PARALLEL_EXECUTION_LIMIT": "20",
-                    "SUPERVISOR_MAX_PARALLEL_AGENTS": "15",  # Should be <= parallel_execution_limit
+                    "SUPERVISOR_MAX_PARALLEL_AGENTS": "15",
+                    # Should be <= parallel_execution_limit
                 },
                 "expected_adjustments": {
                     "parallel_execution_limit": 15,  # Adjusted to supervisor limit
@@ -436,7 +437,7 @@ def workflow_scenarios():
 
     def _create_workflow_scenario(scenario_type: str, **kwargs) -> dict[str, Any]:
         """Create workflow scenario based on type."""
-        if scenario_type == "simple_linear":
+        if scenario_type == "simple_linear":  # noqa: SIM116
             return {
                 "tasks": [
                     {"id": 1, "title": "Task 1", "dependencies": []},
@@ -686,7 +687,10 @@ def mock_external_services():
                     {
                         "title": "JWT Authentication Best Practices",
                         "url": "https://example.com/jwt-best-practices",
-                        "text": "JSON Web Tokens (JWT) are a secure way to transmit information...",
+                        "text": (
+                            "JSON Web Tokens (JWT) are a secure way to transmit "
+                            "information..."
+                        ),
                         "score": 0.95,
                         "published_date": "2024-01-15",
                         "author": "Security Expert",
@@ -694,7 +698,10 @@ def mock_external_services():
                     {
                         "title": "Modern Authentication Patterns",
                         "url": "https://example.com/auth-patterns",
-                        "text": "Modern web applications require robust authentication systems...",
+                        "text": (
+                            "Modern web applications require robust authentication "
+                            "systems..."
+                        ),
                         "score": 0.87,
                         "published_date": "2024-02-20",
                         "author": "Web Developer",
@@ -805,7 +812,10 @@ class AuthenticationManager:
                 )
             elif scenario == "low_quality_response":
                 self.openrouter_client.ainvoke.return_value = Mock(
-                    content="# Incomplete Implementation\n\nSorry, I cannot complete this task."
+                    content=(
+                        "# Incomplete Implementation\n\nSorry, I cannot complete "
+                        "this task."
+                    )
                 )
 
     return MockExternalServices()
@@ -885,7 +895,7 @@ def load_testing_scenarios():
 
     def _create_load_scenario(scenario_type: str, **kwargs) -> dict[str, Any]:
         """Create load testing scenario based on type."""
-        if scenario_type == "gradual_ramp_up":
+        if scenario_type == "gradual_ramp_up":  # noqa: SIM116
             return {
                 "phases": [
                     {"duration": 10, "concurrent_users": 1},
@@ -1008,7 +1018,7 @@ def performance_monitor():
                 "total": sum(durations),
             }
 
-        def get_memory_statistics(self, label: str = None) -> dict[str, float]:
+        def get_memory_statistics(self, label: str | None = None) -> dict[str, float]:
             """Get memory usage statistics."""
             if label:
                 samples = [
@@ -1029,7 +1039,7 @@ def performance_monitor():
             }
 
         def assert_performance(
-            self, operation: str, max_time: float, min_throughput: float = None
+            self, operation: str, max_time: float, min_throughput: float | None = None
         ):
             """Assert performance requirements are met."""
             stats = self.get_statistics(operation)
@@ -1037,13 +1047,15 @@ def performance_monitor():
                 raise AssertionError(f"No metrics recorded for operation: {operation}")
 
             assert stats["mean"] <= max_time, (
-                f"Operation {operation} took {stats['mean']:.3f}s, expected <= {max_time}s"
+                f"Operation {operation} took {stats['mean']:.3f}s, expected "
+                f"<= {max_time}s"
             )
 
             if min_throughput and stats["count"] > 0:
                 actual_throughput = stats["count"] / stats["total"]
                 assert actual_throughput >= min_throughput, (
-                    f"Throughput {actual_throughput:.2f}/s, expected >= {min_throughput}/s"
+                    f"Throughput {actual_throughput:.2f}/s, expected >= "
+                    f"{min_throughput}/s"
                 )
 
         def reset(self):
@@ -1176,7 +1188,7 @@ def resilience_testing_patterns():
 async def async_test_environment():
     """Async test environment with proper cleanup."""
     # Setup async resources
-    loop = asyncio.get_event_loop()
+    asyncio.get_event_loop()
 
     # Create mock async services
     mock_services = {
@@ -1299,7 +1311,7 @@ def mock_database():
             )
 
         def select(
-            self, table_name: str, where: dict[str, Any] = None
+            self, table_name: str, where: dict[str, Any] | None = None
         ) -> list[dict[str, Any]]:
             """Select data from table."""
             if table_name not in self.tables:
@@ -1464,7 +1476,7 @@ def test_data_factory():
 
     def _create_test_data(data_type: str, **kwargs):
         """Create test data based on type."""
-        if data_type == "user_authentication":
+        if data_type == "user_authentication":  # noqa: SIM116
             return {
                 "valid_users": [
                     {

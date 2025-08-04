@@ -65,7 +65,9 @@ async def mock_orchestration_environment():
         mock_firecrawl_client.scrape.return_value = {
             "success": True,
             "data": {
-                "markdown": "# Test Documentation\n\nTest content for documentation agent",
+                "markdown": (
+                    "# Test Documentation\n\nTest content for documentation agent"
+                ),
                 "title": "Test Page",
             },
         }
@@ -141,173 +143,184 @@ class TestWorkflowOrchestration:
         """Test complete successful task workflow from assignment to completion."""
         env = mock_orchestration_environment
 
-        with patch(
-            "src.integrations.exa_client.ExaClient", return_value=env["exa_client"]
-        ):
-            with patch(
+        with (
+            patch(
+                "src.integrations.exa_client.ExaClient", return_value=env["exa_client"]
+            ),
+            patch(
                 "src.integrations.firecrawl_client.FirecrawlClient",
                 return_value=env["firecrawl_client"],
-            ):
-                with patch(
-                    "src.task_manager.TaskManager", return_value=env["task_manager"]
-                ):
-                    # Simulate task delegation process
-                    TaskDelegation(
-                        assigned_agent=AgentType.RESEARCH,
-                        reasoning="This task requires initial research on existing code review tools",
-                        priority=TaskPriority.HIGH,
-                        estimated_duration=120,
-                        dependencies=[],
-                        context_requirements=[
-                            "security best practices",
-                            "CI/CD integration patterns",
-                        ],
-                        confidence_score=0.85,
-                    )
+            ),
+            patch("src.task_manager.TaskManager", return_value=env["task_manager"]),
+        ):
+            # Simulate task delegation process
+            TaskDelegation(
+                assigned_agent=AgentType.RESEARCH,
+                reasoning=(
+                    "This task requires initial research on existing code review tools"
+                ),
+                priority=TaskPriority.HIGH,
+                estimated_duration=120,
+                dependencies=[],
+                context_requirements=[
+                    "security best practices",
+                    "CI/CD integration patterns",
+                ],
+                confidence_score=0.85,
+            )
 
-                    # Test research phase
-                    research_report = AgentReport(
-                        agent_name=AgentType.RESEARCH,
-                        task_id=sample_complex_task.id,
-                        status=TaskStatus.COMPLETED,
-                        success=True,
-                        execution_time_minutes=25.0,
-                        outputs={
-                            "research_findings": "Found 15 existing tools, identified key features",
-                            "security_analysis": "Common vulnerabilities: SQL injection, XSS, buffer overflow",
-                            "integration_patterns": "GitHub Actions, Jenkins, GitLab CI support required",
-                        },
-                        artifacts=["research_summary.md", "competitive_analysis.json"],
-                        recommendations=[
-                            "Focus on static analysis capabilities",
-                            "Implement plugin architecture for extensibility",
-                            "Use machine learning for pattern recognition",
-                        ],
-                        next_actions=["coding", "architecture_design"],
-                        confidence_score=0.92,
-                    )
+            # Test research phase
+            research_report = AgentReport(
+                agent_name=AgentType.RESEARCH,
+                task_id=sample_complex_task.id,
+                status=TaskStatus.COMPLETED,
+                success=True,
+                execution_time_minutes=25.0,
+                outputs={
+                    "research_findings": (
+                        "Found 15 existing tools, identified key features"
+                    ),
+                    "security_analysis": (
+                        "Common vulnerabilities: SQL injection, XSS, buffer overflow"
+                    ),
+                    "integration_patterns": (
+                        "GitHub Actions, Jenkins, GitLab CI support required"
+                    ),
+                },
+                artifacts=["research_summary.md", "competitive_analysis.json"],
+                recommendations=[
+                    "Focus on static analysis capabilities",
+                    "Implement plugin architecture for extensibility",
+                    "Use machine learning for pattern recognition",
+                ],
+                next_actions=["coding", "architecture_design"],
+                confidence_score=0.92,
+            )
 
-                    # Verify research phase completion
-                    assert research_report.success is True
-                    assert research_report.status == TaskStatus.COMPLETED
-                    assert len(research_report.outputs) == 3
-                    assert "security_analysis" in research_report.outputs
+            # Verify research phase completion
+            assert research_report.success is True
+            assert research_report.status == TaskStatus.COMPLETED
+            assert len(research_report.outputs) == 3
+            assert "security_analysis" in research_report.outputs
 
-                    # Test coding phase
-                    coding_report = AgentReport(
-                        agent_name=AgentType.CODING,
-                        task_id=sample_complex_task.id,
-                        status=TaskStatus.COMPLETED,
-                        success=True,
-                        execution_time_minutes=180.0,
-                        outputs={
-                            "implementation": "Created core analysis engine with AST parsing",
-                            "architecture": "Microservices architecture with API gateway",
-                            "security_features": "Implemented OWASP Top 10 detection algorithms",
-                        },
-                        artifacts=[
-                            "src/analyzer/core.py",
-                            "src/analyzer/security_scanner.py",
-                            "src/api/main.py",
-                            "docker-compose.yml",
-                        ],
-                        recommendations=[
-                            "Add comprehensive logging",
-                            "Implement rate limiting",
-                            "Add metrics collection",
-                        ],
-                        next_actions=["testing", "documentation"],
-                        confidence_score=0.88,
-                    )
+            # Test coding phase
+            coding_report = AgentReport(
+                agent_name=AgentType.CODING,
+                task_id=sample_complex_task.id,
+                status=TaskStatus.COMPLETED,
+                success=True,
+                execution_time_minutes=180.0,
+                outputs={
+                    "implementation": "Created core analysis engine with AST parsing",
+                    "architecture": "Microservices architecture with API gateway",
+                    "security_features": (
+                        "Implemented OWASP Top 10 detection algorithms"
+                    ),
+                },
+                artifacts=[
+                    "src/analyzer/core.py",
+                    "src/analyzer/security_scanner.py",
+                    "src/api/main.py",
+                    "docker-compose.yml",
+                ],
+                recommendations=[
+                    "Add comprehensive logging",
+                    "Implement rate limiting",
+                    "Add metrics collection",
+                ],
+                next_actions=["testing", "documentation"],
+                confidence_score=0.88,
+            )
 
-                    # Verify coding phase
-                    assert coding_report.success is True
-                    assert len(coding_report.artifacts) == 4
-                    assert "security_features" in coding_report.outputs
+            # Verify coding phase
+            assert coding_report.success is True
+            assert len(coding_report.artifacts) == 4
+            assert "security_features" in coding_report.outputs
 
-                    # Test testing phase
-                    testing_report = AgentReport(
-                        agent_name=AgentType.TESTING,
-                        task_id=sample_complex_task.id,
-                        status=TaskStatus.COMPLETED,
-                        success=True,
-                        execution_time_minutes=45.0,
-                        outputs={
-                            "test_coverage": "94% line coverage, 88% branch coverage",
-                            "performance_results": "Analyzes 1000 lines/second, <2GB memory usage",
-                            "security_validation": "All OWASP test cases pass",
-                        },
-                        artifacts=[
-                            "tests/test_analyzer_core.py",
-                            "tests/test_security_scanner.py",
-                            "tests/test_api_endpoints.py",
-                            "tests/performance/load_test_results.json",
-                        ],
-                        recommendations=[
-                            "Add integration tests for CI/CD pipelines",
-                            "Implement chaos engineering tests",
-                        ],
-                        next_actions=["documentation"],
-                        confidence_score=0.90,
-                    )
+            # Test testing phase
+            testing_report = AgentReport(
+                agent_name=AgentType.TESTING,
+                task_id=sample_complex_task.id,
+                status=TaskStatus.COMPLETED,
+                success=True,
+                execution_time_minutes=45.0,
+                outputs={
+                    "test_coverage": "94% line coverage, 88% branch coverage",
+                    "performance_results": (
+                        "Analyzes 1000 lines/second, <2GB memory usage"
+                    ),
+                    "security_validation": "All OWASP test cases pass",
+                },
+                artifacts=[
+                    "tests/test_analyzer_core.py",
+                    "tests/test_security_scanner.py",
+                    "tests/test_api_endpoints.py",
+                    "tests/performance/load_test_results.json",
+                ],
+                recommendations=[
+                    "Add integration tests for CI/CD pipelines",
+                    "Implement chaos engineering tests",
+                ],
+                next_actions=["documentation"],
+                confidence_score=0.90,
+            )
 
-                    # Verify testing phase
-                    assert testing_report.success is True
-                    assert "94%" in testing_report.outputs["test_coverage"]
+            # Verify testing phase
+            assert testing_report.success is True
+            assert "94%" in testing_report.outputs["test_coverage"]
 
-                    # Test documentation phase
-                    documentation_report = AgentReport(
-                        agent_name=AgentType.DOCUMENTATION,
-                        task_id=sample_complex_task.id,
-                        status=TaskStatus.COMPLETED,
-                        success=True,
-                        execution_time_minutes=30.0,
-                        outputs={
-                            "user_documentation": "Complete user guide with examples",
-                            "api_documentation": "OpenAPI 3.0 specification with examples",
-                            "deployment_guide": "Docker and Kubernetes deployment instructions",
-                        },
-                        artifacts=[
-                            "docs/user_guide.md",
-                            "docs/api_reference.md",
-                            "docs/deployment.md",
-                            "docs/api_spec.yaml",
-                        ],
-                        recommendations=[
-                            "Add video tutorials",
-                            "Create interactive demos",
-                        ],
-                        next_actions=["deployment", "monitoring"],
-                        confidence_score=0.87,
-                    )
+            # Test documentation phase
+            documentation_report = AgentReport(
+                agent_name=AgentType.DOCUMENTATION,
+                task_id=sample_complex_task.id,
+                status=TaskStatus.COMPLETED,
+                success=True,
+                execution_time_minutes=30.0,
+                outputs={
+                    "user_documentation": "Complete user guide with examples",
+                    "api_documentation": "OpenAPI 3.0 specification with examples",
+                    "deployment_guide": "Docker and Kubernetes deployment instructions",
+                },
+                artifacts=[
+                    "docs/user_guide.md",
+                    "docs/api_reference.md",
+                    "docs/deployment.md",
+                    "docs/api_spec.yaml",
+                ],
+                recommendations=[
+                    "Add video tutorials",
+                    "Create interactive demos",
+                ],
+                next_actions=["deployment", "monitoring"],
+                confidence_score=0.87,
+            )
 
-                    # Verify documentation phase
-                    assert documentation_report.success is True
-                    assert len(documentation_report.artifacts) == 4
+            # Verify documentation phase
+            assert documentation_report.success is True
+            assert len(documentation_report.artifacts) == 4
 
-                    # Calculate total workflow metrics
-                    total_execution_time = (
-                        research_report.execution_time_minutes
-                        + coding_report.execution_time_minutes
-                        + testing_report.execution_time_minutes
-                        + documentation_report.execution_time_minutes
-                    )
+            # Calculate total workflow metrics
+            total_execution_time = (
+                research_report.execution_time_minutes
+                + coding_report.execution_time_minutes
+                + testing_report.execution_time_minutes
+                + documentation_report.execution_time_minutes
+            )
 
-                    assert total_execution_time == 280.0  # 4 hours 40 minutes
-                    assert (
-                        total_execution_time
-                        < sample_complex_task.time_estimate_hours * 60
-                    )  # Under estimate
+            assert total_execution_time == 280.0  # 4 hours 40 minutes
+            assert (
+                total_execution_time < sample_complex_task.time_estimate_hours * 60
+            )  # Under estimate
 
-                    # Verify all success criteria met
-                    all_reports = [
-                        research_report,
-                        coding_report,
-                        testing_report,
-                        documentation_report,
-                    ]
-                    assert all(report.success for report in all_reports)
-                    assert all(report.confidence_score > 0.8 for report in all_reports)
+            # Verify all success criteria met
+            all_reports = [
+                research_report,
+                coding_report,
+                testing_report,
+                documentation_report,
+            ]
+            assert all(report.success for report in all_reports)
+            assert all(report.confidence_score > 0.8 for report in all_reports)
 
     @pytest.mark.asyncio
     async def test_workflow_with_agent_failure_and_recovery(
@@ -347,9 +360,15 @@ class TestWorkflowOrchestration:
             success=True,
             execution_time_minutes=20.0,
             outputs={
-                "clarified_requirements": "Detailed vulnerability detection specifications",
-                "integration_examples": "Sample GitHub Actions and Jenkins configurations",
-                "reference_implementations": "Analysis of SonarQube and CodeClimate approaches",
+                "clarified_requirements": (
+                    "Detailed vulnerability detection specifications"
+                ),
+                "integration_examples": (
+                    "Sample GitHub Actions and Jenkins configurations"
+                ),
+                "reference_implementations": (
+                    "Analysis of SonarQube and CodeClimate approaches"
+                ),
             },
             artifacts=[
                 "requirements_clarification.md",
@@ -377,8 +396,12 @@ class TestWorkflowOrchestration:
             execution_time_minutes=200.0,  # Longer due to retry
             outputs={
                 "implementation": "Complete analysis engine with tree-sitter parsing",
-                "security_scanner": "Comprehensive vulnerability detection for OWASP Top 10",
-                "performance_optimization": "Incremental analysis reduces processing time by 60%",
+                "security_scanner": (
+                    "Comprehensive vulnerability detection for OWASP Top 10"
+                ),
+                "performance_optimization": (
+                    "Incremental analysis reduces processing time by 60%"
+                ),
             },
             artifacts=[
                 "src/analyzer/core.py",
@@ -785,7 +808,8 @@ class TestErrorHandlingAndRecovery:
 
                     # If we get here, validation didn't catch the error
                     if i == 0:  # Missing API key case
-                        # This might not fail at pydantic level, but at runtime validation
+                        # This might not fail at pydantic level, but at runtime
+                        # validation
                         continue
                     else:
                         pytest.fail(
@@ -851,7 +875,8 @@ class TestErrorHandlingAndRecovery:
                     else:
                         # Log error and continue with degraded functionality
                         print(
-                            f"Database operation failed after {max_retries} retries: {e}"
+                            f"Database operation failed after {max_retries} "
+                            f"retries: {e}"
                         )
                         return False
 
@@ -917,7 +942,8 @@ class TestPerformanceUnderLoad:
                     / 60,  # Convert to minutes
                     outputs={
                         "implementation": f"Completed task {task.id}",
-                        "processing_node": f"node_{task.id % 3}",  # Simulate distribution
+                        "processing_node": f"node_{task.id % 3}",  # Simulate
+                        # distribution
                     },
                     artifacts=[f"task_{task.id}_output.py"],
                     recommendations=[],
@@ -968,7 +994,6 @@ class TestPerformanceUnderLoad:
         import os
 
         import psutil
-
 
         # Get initial memory usage
         process = psutil.Process(os.getpid())
@@ -1073,7 +1098,11 @@ class TestPerformanceUnderLoad:
             task = TaskCore(
                 id=i,
                 title=f"Mixed Load Task {i}",
-                description=f"Task {i} with {'high' if complexity == TaskComplexity.HIGH else 'low'} complexity",
+                description=(
+                    f"Task {i} with "
+                    f"{'high' if complexity == TaskComplexity.HIGH else 'low'} "
+                    f"complexity"
+                ),
                 component_area=ComponentArea.CORE,
                 phase=1,
                 priority=TaskPriority.MEDIUM,

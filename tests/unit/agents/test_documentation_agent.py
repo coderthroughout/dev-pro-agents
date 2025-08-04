@@ -211,9 +211,13 @@ class TestDocumentationAgentTaskExecution:
         return {
             "id": 1,
             "title": "Document user authentication system",
-            "description": "Create comprehensive documentation for secure login functionality",
+            "description": (
+                "Create comprehensive documentation for secure login functionality"
+            ),
             "component_area": "security",
-            "success_criteria": "Complete documentation with usage examples and troubleshooting",
+            "success_criteria": (
+                "Complete documentation with usage examples and troubleshooting"
+            ),
         }
 
     @pytest.fixture
@@ -236,7 +240,8 @@ class TestDocumentationAgentTaskExecution:
         
         ## Overview and Purpose
         
-        The user authentication system provides secure login functionality for the application.
+        The user authentication system provides secure login functionality 
+        for the application.
         
         ## Implementation Details
         
@@ -854,9 +859,13 @@ async def test_documentation_agent_integration():
         task_data = {
             "id": 1,
             "title": "Document user authentication system",
-            "description": "Create comprehensive documentation for secure login functionality",
+            "description": (
+                "Create comprehensive documentation for secure login functionality"
+            ),
             "component_area": "security",
-            "success_criteria": "Complete documentation with examples and troubleshooting",
+            "success_criteria": (
+                "Complete documentation with examples and troubleshooting"
+            ),
         }
 
         state = {
@@ -897,7 +906,8 @@ async def test_documentation_agent_integration():
         
         ## Overview and Purpose
         
-        The user authentication system provides secure login functionality using JWT tokens.
+        The user authentication system provides secure login functionality 
+        using JWT tokens.
         
         ## Implementation Details
         

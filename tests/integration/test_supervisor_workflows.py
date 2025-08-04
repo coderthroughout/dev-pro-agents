@@ -8,7 +8,9 @@ Tests cover LangGraph supervisor implementation including:
 - Multi-agent task execution
 """
 
+import os
 from datetime import datetime
+from pathlib import Path
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -365,9 +367,7 @@ def function2():
         create_test = tools[1]
 
         # Change to temp directory for test
-        import os
-
-        old_cwd = os.getcwd()
+        old_cwd = Path.cwd()
         os.chdir(tmp_path)
 
         try:
@@ -608,7 +608,10 @@ class TestTaskExecution:
             "messages": [
                 HumanMessage(content="Execute task"),
                 AIMessage(
-                    content="Task execution failed due to missing dependencies and error in setup"
+                    content=(
+                        "Task execution failed due to missing dependencies and "
+                        "error in setup"
+                    )
                 ),
             ]
         }
@@ -718,7 +721,9 @@ class TestTaskExecution:
         mixed_result = {
             "messages": [
                 AIMessage(
-                    content="Task completed but there was an exception in the final step"
+                    content=(
+                        "Task completed but there was an exception in the final step"
+                    )
                 )
             ]
         }

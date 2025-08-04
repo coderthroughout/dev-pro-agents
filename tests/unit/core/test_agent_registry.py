@@ -187,7 +187,8 @@ class TestAgentRegistryCapabilityBasedDiscovery:
 
     def test_get_agent_for_capability_selects_least_loaded(self, capability_registry):
         """Test capability-based selection prefers less loaded agents."""
-        # Both agent1 and agent2 have data_analysis, but agent1 has 0 tasks vs agent2 with 1
+        # Both agent1 and agent2 have data_analysis, but agent1 has 0 tasks vs
+        # agent2 with 1
         agent = capability_registry.get_agent_for_capability("data_analysis")
 
         assert agent is not None

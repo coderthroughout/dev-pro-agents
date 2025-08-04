@@ -10,7 +10,9 @@ Tests cover batch processing and coordination including:
 
 import asyncio
 import json
+import os
 from datetime import datetime
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
@@ -565,9 +567,9 @@ class TestBatchReporting:
         }
 
         # Change working directory to temp path
-        import os
+        from pathlib import Path
 
-        old_cwd = os.getcwd()
+        old_cwd = Path.cwd()
         os.chdir(tmp_path)
 
         try:
@@ -909,8 +911,11 @@ class TestBatchExecutionPerformance:
         # Verify operations complete without interference
         # (Both return immediately in current implementation)
 
+        async def run_task(task):
+            return task
+
         results = await asyncio.gather(
-            *[asyncio.create_task(asyncio.coroutine(lambda: task)()) for task in tasks]
+            *[asyncio.create_task(run_task(task)) for task in tasks]
         )
 
         assert len(results) == 2
@@ -1040,10 +1045,9 @@ class TestBatchExecutionIntegration:
         assert mock_task_manager.update_task_status.call_count == 2
 
         # Cleanup
-        import os
 
-        if export_result and os.path.exists(export_result):
-            os.unlink(export_result)
+        if export_result and Path(export_result).exists():
+            Path(export_result).unlink()
 
     @pytest.mark.integration
     def test_batch_execution_configuration_integration(self):

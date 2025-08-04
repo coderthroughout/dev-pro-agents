@@ -201,7 +201,9 @@ class TestResearchAgentTaskExecution:
         return {
             "id": 1,
             "title": "Research authentication best practices",
-            "description": "Investigate secure authentication methods and JWT implementation",
+            "description": (
+                "Investigate secure authentication methods and JWT implementation"
+            ),
             "component_area": "security",
         }
 
@@ -223,7 +225,10 @@ class TestResearchAgentTaskExecution:
         result.url = "https://example.com/jwt-guide"
         result.summary = "Comprehensive guide to JWT implementation"
         result.score = 0.95
-        result.text = "JWT tokens provide secure stateless authentication. Best practices include proper secret management and token expiration."
+        result.text = (
+            "JWT tokens provide secure stateless authentication. Best practices "
+            "include proper secret management and token expiration."
+        )
         return result
 
     @pytest.fixture
@@ -372,7 +377,10 @@ class TestResearchAgentResearchMethods:
         result.url = "https://example.com/auth"
         result.summary = "Security best practices"
         result.score = 0.9
-        result.text = "JWT tokens provide secure authentication. Use HTTPS for token transmission. Implement proper expiration policies."
+        result.text = (
+            "JWT tokens provide secure authentication. Use HTTPS for token "
+            "transmission. Implement proper expiration policies."
+        )
         return result
 
     @pytest.mark.asyncio
@@ -428,7 +436,9 @@ class TestResearchAgentResearchMethods:
         """Test research query generation."""
         queries = agent._generate_research_queries(
             title="JWT authentication",
-            description="Implement secure token-based authentication with proper validation",
+            description=(
+                "Implement secure token-based authentication with proper validation"
+            ),
             component_area="security",
         )
 
@@ -446,7 +456,11 @@ class TestResearchAgentResearchMethods:
 
     def test_extract_key_findings(self, agent):
         """Test key findings extraction from text."""
-        text = "JWT tokens provide stateless authentication. They are secure when properly implemented. HTTPS should always be used for transmission. Token expiration is crucial for security."
+        text = (
+            "JWT tokens provide stateless authentication. They are secure when "
+            "properly implemented. HTTPS should always be used for transmission. "
+            "Token expiration is crucial for security."
+        )
         query = "JWT authentication security"
 
         findings = agent._extract_key_findings(text, query)
@@ -561,7 +575,10 @@ async def test_research_agent_integration():
     mock_result1.url = "https://example.com/jwt-security"
     mock_result1.summary = "Comprehensive JWT security guide"
     mock_result1.score = 0.95
-    mock_result1.text = "JWT tokens should use strong secrets. Implement proper expiration. Use HTTPS for transmission."
+    mock_result1.text = (
+        "JWT tokens should use strong secrets. Implement proper expiration. "
+        "Use HTTPS for transmission."
+    )
 
     mock_result2 = MagicMock()
     mock_result2.title = "Authentication Implementation Guide"

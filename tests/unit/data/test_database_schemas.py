@@ -550,7 +550,9 @@ class TestTaskExecutionLog:
             status=TaskStatus.FAILED,
             start_time=datetime.now(),
             end_time=datetime.now(),
-            error_details="Failed to generate documentation due to missing source files",
+            error_details=(
+                "Failed to generate documentation due to missing source files"
+            ),
             confidence_score=0.2,
         )
 

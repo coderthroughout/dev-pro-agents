@@ -22,7 +22,7 @@ class TestYAMLConfigurationLoading:
         # Read the actual agents.yaml file
         agents_yaml_path = Path("src/config/agents.yaml")
 
-        with open(agents_yaml_path) as f:
+        with agents_yaml_path.open() as f:
             config_data = yaml.safe_load(f)
 
         # Verify structure
@@ -78,7 +78,7 @@ class TestYAMLConfigurationLoading:
         # Read the actual orchestrator.yaml file
         orchestrator_yaml_path = Path("src/config/orchestrator.yaml")
 
-        with open(orchestrator_yaml_path) as f:
+        with orchestrator_yaml_path.open() as f:
             config_data = yaml.safe_load(f)
 
         # Verify structure
@@ -457,10 +457,12 @@ class TestYAMLConfigurationErrorHandling:
 
     def test_missing_configuration_files(self):
         """Test handling of missing YAML configuration files."""
-        with patch("pathlib.Path.exists", return_value=False):
-            with pytest.raises(FileNotFoundError):
-                with open("nonexistent_config.yaml") as f:
-                    yaml.safe_load(f)
+        with (
+            patch("pathlib.Path.exists", return_value=False),
+            pytest.raises(FileNotFoundError),
+            Path("nonexistent_config.yaml").open() as f,
+        ):
+            yaml.safe_load(f)
 
     def test_empty_configuration_files(self):
         """Test handling of empty YAML configuration files."""
@@ -669,7 +671,7 @@ class TestYAMLConfigurationIntegration:
 
         try:
             # Load and verify the YAML
-            with open(temp_agents_path) as f:
+            with Path(temp_agents_path).open() as f:
                 loaded_config = yaml.safe_load(f)
 
             assert loaded_config == agents_config

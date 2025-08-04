@@ -39,9 +39,8 @@ class TestRepositoryFixtures:
     @pytest.fixture
     def temp_engine(self):
         """Create temporary SQLite engine for testing."""
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".db")
-        temp_file.close()
-        db_path = temp_file.name
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".db") as temp_file:
+            db_path = temp_file.name
 
         engine = create_engine(f"sqlite:///{db_path}", echo=False)
         SQLModel.metadata.create_all(engine)
@@ -132,9 +131,8 @@ class TestBaseRepository(TestRepositoryFixtures):
     @pytest.fixture
     def mock_entity_engine(self):
         """Create engine with mock entity table."""
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".db")
-        temp_file.close()
-        db_path = temp_file.name
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".db") as temp_file:
+            db_path = temp_file.name
 
         engine = create_engine(f"sqlite:///{db_path}", echo=False)
 
@@ -910,7 +908,7 @@ class TestTaskExecutionRepository(TestRepositoryFixtures):
         """Test getting recent execution logs."""
         # Create multiple execution logs
         execution_logs = []
-        for i in range(15):  # More than default limit
+        for _i in range(15):  # More than default limit
             exec_id = uuid4()
             log = task_execution_repository.log_execution_start(
                 task_id=sample_task_for_execution.id,
@@ -1142,7 +1140,8 @@ class TestRepositoryErrorHandling(TestRepositoryFixtures):
             dependency_type="blocks",
         )
 
-        # Dependency is created but will fail at database level due to foreign key constraint
+        # Dependency is created but will fail at database level due to foreign
+        # key constraint
         assert dependency.task_id == task.id
         assert dependency.depends_on_task_id == 999999
 

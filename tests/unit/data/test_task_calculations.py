@@ -57,7 +57,8 @@ class TestTaskCalculations:
             phase=1,
         )
 
-        # Expected: complexity(2) * priority(2) * time_factor(4/8=0.5) * phase_factor(1.1) = 2.2
+        # Expected: complexity(2) * priority(2) * time_factor(4/8=0.5) *
+        # phase_factor(1.1) = 2.2
         expected_effort = 2 * 2 * (4.0 / 8.0) * 1.1
         assert TaskCalculations.effort_index(task) == round(expected_effort, 2)
 
@@ -126,7 +127,8 @@ class TestTaskCalculations:
             time_estimate_hours=6.0,
         )
 
-        # Expected: complexity_score(3) / time_estimate(6.0) * priority_adjustment(1.0) = 0.5
+        # Expected: complexity_score(3) / time_estimate(6.0) *
+        # priority_adjustment(1.0) = 0.5
         expected_risk = 3 / 6.0 * 1.0
         assert TaskCalculations.risk_factor(task) == round(expected_risk, 2)
 

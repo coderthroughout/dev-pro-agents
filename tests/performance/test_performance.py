@@ -67,7 +67,10 @@ async def performance_test_environment():
         mock_firecrawl_client.scrape.return_value = {
             "success": True,
             "data": {
-                "markdown": "# Performance Test Content\n\nOptimized content for performance testing",
+                "markdown": (
+                    "# Performance Test Content\n\nOptimized content for "
+                    "performance testing"
+                ),
                 "title": "Performance Test Page",
             },
         }
@@ -96,7 +99,9 @@ def create_test_tasks(
         TaskCore(
             id=i,
             title=f"Performance Task {i}",
-            description=f"Performance testing task {i} with {complexity.value} complexity",
+            description=(
+                f"Performance testing task {i} with {complexity.value} complexity"
+            ),
             component_area=ComponentArea.CORE,
             phase=1,
             priority=TaskPriority.MEDIUM,
@@ -174,7 +179,9 @@ class TestBatchProcessingPerformance:
             start_memory = psutil.Process().memory_info().rss / 1024 / 1024  # MB
 
             # Process batch concurrently
-            async def process_task(task: TaskCore) -> AgentReport:
+            async def process_task(
+                task: TaskCore, current_batch_size: int = batch_size
+            ) -> AgentReport:
                 # Simulate variable processing time
                 processing_time = 0.001 + (task.id % 10) * 0.0001
                 await asyncio.sleep(processing_time)
@@ -185,18 +192,20 @@ class TestBatchProcessingPerformance:
                     status=TaskStatus.COMPLETED,
                     success=True,
                     execution_time_minutes=processing_time * 60,
-                    outputs={"processed": True, "batch_size": batch_size},
-                    artifacts=[f"batch_{batch_size}_task_{task.id}.py"],
+                    outputs={"processed": True, "batch_size": current_batch_size},
+                    artifacts=[f"batch_{current_batch_size}_task_{task.id}.py"],
                     recommendations=[],
                     next_actions=["test"],
                     confidence_score=0.88,
                 )
 
             # Use semaphore to limit concurrency
-            semaphore = asyncio.Semaphore(20)  # Max 20 concurrent tasks
+            current_semaphore = asyncio.Semaphore(20)  # Max 20 concurrent tasks
 
-            async def process_with_semaphore(task: TaskCore) -> AgentReport:
-                async with semaphore:
+            async def process_with_semaphore(
+                task: TaskCore, sem: asyncio.Semaphore = current_semaphore
+            ) -> AgentReport:
+                async with sem:
                     return await process_task(task)
 
             results = await asyncio.gather(
@@ -239,7 +248,7 @@ class TestBatchProcessingPerformance:
             assert memory_500 < memory_50 * 5
 
         # All batches should maintain high success rate
-        for batch_size, metrics in performance_metrics.items():
+        for _batch_size, metrics in performance_metrics.items():
             assert metrics["success_rate"] >= 0.99
 
     @pytest.mark.asyncio

@@ -15,6 +15,9 @@ from src.schemas.transformations import (
     BatchTransformer,
     LegacyCompatibilityLayer,
     SchemaTransformer,
+    convert_to_core_model,
+    convert_to_entity,
+    validate_and_transform,
 )
 from src.schemas.unified_models import (
     AgentReport,
@@ -772,9 +775,9 @@ class TestTransformationErrorHandling:
         entity = convert_to_entity(original_core)
         restored_core = convert_to_core_model(entity)
 
-        assert type(original_core.priority) == type(restored_core.priority)
-        assert type(original_core.complexity) == type(restored_core.complexity)
-        assert type(original_core.status) == type(restored_core.status)
+        assert isinstance(original_core.priority, type(restored_core.priority))
+        assert isinstance(original_core.complexity, type(restored_core.complexity))
+        assert isinstance(original_core.status, type(restored_core.status))
         assert original_core.priority == restored_core.priority
         assert original_core.complexity == restored_core.complexity
         assert original_core.status == restored_core.status

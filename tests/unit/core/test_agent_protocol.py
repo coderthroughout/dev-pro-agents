@@ -549,7 +549,7 @@ class TestAgentExecutionError:
             except ValueError as e:
                 raise AgentExecutionError(
                     "chained_agent", 999, "Chained error", cause=e
-                )
+                ) from e
         except AgentExecutionError as error:
             assert error.cause is not None
             assert isinstance(error.cause, ValueError)
