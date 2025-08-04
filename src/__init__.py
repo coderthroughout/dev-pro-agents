@@ -35,6 +35,7 @@ from .supervisor import Supervisor
 # Task management
 from .task_manager import TaskDependency, TaskManager
 
+
 __all__ = [
     "AgentReport",
     "ExaClient",

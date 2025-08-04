@@ -7,4 +7,5 @@ with database persistence, following DDD principles.
 from .base import BaseRepository
 from .task_repository import TaskExecutionRepository, TaskRepository
 
+
 __all__ = ["BaseRepository", "TaskExecutionRepository", "TaskRepository"]

@@ -16,6 +16,7 @@ from ..integrations.exa_client import ExaClient
 from ..integrations.firecrawl_client import FirecrawlClient
 from ..schemas import AgentReport, AgentType, TaskStatus
 
+
 logger = logging.getLogger(__name__)
 
 

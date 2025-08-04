@@ -9,6 +9,7 @@ from .documentation_agent import DocumentationAgent
 from .research_agent import ResearchAgent
 from .testing_agent import TestingAgent
 
+
 __all__ = [
     "CodingAgent",
     "DocumentationAgent",

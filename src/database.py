@@ -20,6 +20,7 @@ from .schemas.database import (
     TaskProgress,
 )
 
+
 # Get settings
 settings = get_settings()
 

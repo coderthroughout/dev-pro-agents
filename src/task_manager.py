@@ -39,6 +39,7 @@ from .schemas.unified_models import (
     get_status_progress_percentage,
 )
 
+
 # Enhanced Pydantic v2 Configuration Classes
 BaseOrchestrationConfig = ConfigDict(
     validate_assignment=True,
@@ -247,25 +248,33 @@ class TaskManager:
 
         """
         try:
+            # Import enums for conversion
+            from .schemas.unified_models import (
+                ComponentArea,
+                TaskComplexity,
+                TaskPriority,
+                TaskStatus,
+            )
+
             task_data = {
                 "id": row["id"],
                 "title": row["title"],
                 "description": row["description"] or "",
-                "component_area": row["component_area"],
+                "component_area": ComponentArea(row["component_area"]),
                 "phase": row["phase"],
-                "priority": row["priority"],
-                "complexity": row["complexity"],
-                "status": row["status"],
+                "priority": TaskPriority(row["priority"]),
+                "complexity": TaskComplexity(row["complexity"]),
+                "status": TaskStatus(row["status"]),
                 "source_document": row["source_document"] or "",
                 "success_criteria": row["success_criteria"] or "",
                 "time_estimate_hours": float(row["time_estimate_hours"]),
                 "parent_task_id": row["parent_task_id"],
                 "created_at": datetime.fromisoformat(row["created_at"])
                 if row["created_at"]
-                else None,
+                else datetime.now(),
                 "updated_at": datetime.fromisoformat(row["updated_at"])
                 if row["updated_at"]
-                else None,
+                else datetime.now(),
             }
             return TaskCore(**task_data)
         except Exception as e:

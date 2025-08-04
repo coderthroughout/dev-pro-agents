@@ -9,6 +9,7 @@ from typing import Any, Generic, TypeVar
 
 from sqlmodel import Session, select
 
+
 EntityT = TypeVar("EntityT")
 BusinessT = TypeVar("BusinessT")
 

@@ -10,6 +10,7 @@ from .agent_registry import AgentRegistry
 # ModularOrchestrator import moved to avoid circular dependencies
 from .state import AgentReport, AgentState, TaskAssignment
 
+
 __all__ = [
     "AgentConfig",
     "AgentExecutionError",

@@ -20,6 +20,7 @@ from pydantic import (
 )
 from sqlmodel import SQLModel
 
+
 # ============================================================================
 # UNIFIED ENUMS (from foundation.py - most comprehensive)
 # ============================================================================
@@ -238,7 +239,8 @@ class AgentReport(BaseLLMResponseModel):
         if self.status == TaskStatus.FAILED:
             if not self.issues_found and not self.error_details:
                 raise ValueError("Failed status requires issues_found or error_details")
-            self.success = False
+            # Use object.__setattr__ to avoid triggering validation recursion
+            object.__setattr__(self, "success", False)
 
         if self.status == TaskStatus.BLOCKED and not self.issues_found:
             raise ValueError("Blocked status requires issues_found")
@@ -292,6 +294,32 @@ class TaskCore(BaseBusinessModel):
         return (
             self.status == TaskStatus.IN_PROGRESS and self.time_estimate_hours > 8.0
         )  # More than 8 hours
+
+    @computed_field
+    @cached_property
+    def risk_factor(self) -> float:
+        """Computed risk factor based on priority, complexity, and status."""
+        # Base risk from priority
+        priority_risk = {
+            TaskPriority.LOW: 0.5,
+            TaskPriority.MEDIUM: 1.0,
+            TaskPriority.HIGH: 1.5,
+            TaskPriority.CRITICAL: 2.0,
+        }.get(self.priority, 1.0)
+
+        # Complexity multiplier
+        complexity_risk = self.complexity_multiplier
+
+        # Status modifier
+        status_modifier = {
+            TaskStatus.NOT_STARTED: 1.0,
+            TaskStatus.IN_PROGRESS: 1.2,
+            TaskStatus.BLOCKED: 2.0,
+            TaskStatus.COMPLETED: 0.1,
+            TaskStatus.FAILED: 1.8,
+        }.get(self.status, 1.0)
+
+        return priority_risk * complexity_risk * status_modifier
 
 
 # ============================================================================

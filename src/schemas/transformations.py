@@ -20,6 +20,7 @@ from .unified_models import (
     get_status_progress_percentage,
 )
 
+
 T = TypeVar("T", bound=BaseModel)
 E = TypeVar("E", bound=SQLModel)
 
@@ -93,9 +94,24 @@ class SchemaTransformer:
     @staticmethod
     def legacy_agent_report_to_unified(legacy_report: dict[str, Any]) -> AgentReport:
         """Convert legacy agent report dictionary to unified AgentReport."""
+        from .unified_models import AgentType
+
+        # Handle agent_name/agent_type conversion
+        agent_name_str = legacy_report.get("agent_name", "legacy_agent")
+        if hasattr(AgentType, agent_name_str.replace("_agent", "").upper()):
+            agent_name = getattr(
+                AgentType, agent_name_str.replace("_agent", "").upper()
+            )
+        else:
+            # Try to parse from agent_type field if agent_name doesn't work
+            agent_type_str = legacy_report.get("agent_type", "coding")
+            try:
+                agent_name = AgentType(agent_type_str)
+            except ValueError:
+                agent_name = AgentType.CODING  # Default fallback
+
         return AgentReport(
-            agent_name=legacy_report.get("agent_name", "legacy_agent"),
-            agent_type=legacy_report.get("agent_type", "coding"),
+            agent_name=agent_name,
             task_id=legacy_report.get("task_id", 0),
             status=TaskStatus(legacy_report.get("status", "completed")),
             success=legacy_report.get("success", True),

@@ -19,6 +19,7 @@ from .supervisor import Supervisor as LibrarySupervisor
 from .supervisor_executor import SupervisorExecutor
 from .task_manager import TaskManager
 
+
 # Initialize CLI and console
 app = typer.Typer(help="Multi-Agent Orchestration System CLI")
 console = Console()

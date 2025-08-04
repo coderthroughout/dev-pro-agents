@@ -4,7 +4,7 @@ This module provides SQLModel table definitions that work seamlessly with
 the existing Pydantic business models, enabling end-to-end type safety.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
@@ -70,21 +70,29 @@ class Task(BaseEntityModel, table=True):
     )
     progress_records: list["TaskProgress"] = Relationship(back_populates="task")
     execution_logs: list["TaskExecutionLog"] = Relationship(back_populates="task")
-    subtasks: list["Task"] = Relationship(
-        back_populates="parent_task", sa_relationship_kwargs={"remote_side": "Task.id"}
-    )
+    subtasks: list["Task"] = Relationship(back_populates="parent_task")
     parent_task: Optional["Task"] = Relationship(
-        back_populates="subtasks", sa_relationship_kwargs={"remote_side": "Task.id"}
+        back_populates="subtasks", sa_relationship_kwargs={"remote_side": "[Task.id]"}
     )
 
     def to_core_model(self) -> TaskCore:
         """Convert to TaskCore business model."""
-        return TaskCore.model_validate(self.model_dump())
+        return TaskCore.model_validate(self.model_dump(exclude={"uuid"}))
 
     @classmethod
     def from_core_model(cls, core_model: TaskCore) -> "Task":
         """Create from TaskCore business model."""
-        data = core_model.model_dump(exclude={"uuid"} if core_model.id else set())
+        # Exclude computed fields that don't exist in the database entity
+        excluded_fields = {
+            "uuid",
+            "complexity_multiplier",
+            "effort_index",
+            "risk_factor",
+            "is_overdue",
+            "progress_percentage",
+            "is_actionable",
+        }
+        data = core_model.model_dump(exclude=excluded_fields)
         return cls.model_validate(data)
 
     def update_from_core_model(self, core_model: TaskCore) -> None:
@@ -171,14 +179,19 @@ class TaskExecutionLog(BaseEntityModel, table=True):
 
     def to_agent_report(self) -> AgentReport:
         """Convert to AgentReport business model."""
+        # Calculate execution time if end_time is available
+        execution_time_minutes = 0.0
+        if self.end_time and self.start_time:
+            execution_time_minutes = (
+                self.end_time - self.start_time
+            ).total_seconds() / 60.0
+
         return AgentReport(
-            agent_name=f"{self.agent_type.value}_agent",
-            agent_type=self.agent_type,
+            agent_name=self.agent_type,
             task_id=self.task_id,
-            execution_id=self.execution_id,
             status=self.status,
-            start_time=self.start_time,
-            end_time=self.end_time,
+            success=self.status in [TaskStatus.COMPLETED, TaskStatus.PARTIAL],
+            execution_time_minutes=execution_time_minutes,
             outputs=self.outputs,
             error_details=self.error_details,
             confidence_score=self.confidence_score,
@@ -187,13 +200,19 @@ class TaskExecutionLog(BaseEntityModel, table=True):
     @classmethod
     def from_agent_report(cls, report: AgentReport) -> "TaskExecutionLog":
         """Create from AgentReport business model."""
+        start_time = (
+            report.created_at if hasattr(report, "created_at") else datetime.now()
+        )
+        end_time = None
+        if report.execution_time_minutes > 0:
+            end_time = start_time + timedelta(minutes=report.execution_time_minutes)
+
         return cls(
             task_id=report.task_id,
-            execution_id=report.execution_id,
-            agent_type=report.agent_type,
+            agent_type=report.agent_name,
             status=report.status,
-            start_time=report.start_time,
-            end_time=report.end_time,
+            start_time=start_time,
+            end_time=end_time,
             outputs=report.outputs,
             error_details=report.error_details,
             confidence_score=report.confidence_score,

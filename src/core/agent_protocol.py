@@ -15,7 +15,7 @@ from .state import AgentState
 class AgentConfig(BaseModel):
     """Configuration model for agents."""
 
-    name: str
+    name: str = Field(..., min_length=1)
     enabled: bool = True
     capabilities: list[str] = Field(default_factory=list)
     model: str = "openrouter/horizon-beta"
